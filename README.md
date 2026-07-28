@@ -25,10 +25,6 @@ Variable            | Default                        | Description
 docker build -t traefik-probe . --no-cache
 ```
 
-## Config
-
-TODO: config?
-
 ## Dry run
 
 Available checks:
@@ -42,6 +38,8 @@ asset:
   check: "traefik"
   config:
     address: "192.168.1.2"
+    port: 8080
+    protocol: HTTP
 ```
 
 Run the probe with the `DRY_RUN` environment variable set the the yaml file above.
