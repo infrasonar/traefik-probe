@@ -60,6 +60,6 @@ class CheckTraefik(Check):
                 'name': 'version',
                 'version': version.get('Version'),
                 'codename': version.get('Codename'),
-                'start_date': on_dt_str(version.get('StartDate')),
+                'start_ts': on_dt_str(version.get('StartDate')),
             }],
         }
