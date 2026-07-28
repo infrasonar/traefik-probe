@@ -27,7 +27,7 @@ docker build -t traefik-probe . --no-cache
 
 ## Config
 
-TODO: config ?
+TODO: config?
 
 ## Dry run
 
