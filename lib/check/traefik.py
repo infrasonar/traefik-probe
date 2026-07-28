@@ -21,10 +21,10 @@ class CheckTraefik(Check):
         port = config.get('port', DEFAULT_PORT)
         base_url = f'http://{address}:{port}'
         ssl = False
-        schema = config.get('schema')
-        if schema == 'HTTPS (Unverified)':
+        protocol = config.get('protocol')
+        if protocol == 'HTTPS (Unverified)':
             base_url = f'https://{address}:{port}'
-        elif schema == 'HTTPS (Strict)':
+        elif protocol == 'HTTPS (Strict)':
             base_url = f'https://{address}:{port}'
             ssl = True
 
@@ -40,76 +40,26 @@ class CheckTraefik(Check):
             msg = str(e) or type(e).__name__
             raise CheckException(msg)
 
-        state = {
-            'traefik': [{
-                'name': 'traefik',
+        overview = {
+            f'{p}_{a}_{c}': d
+            for p in ('http', 'tcp', 'udp')
+            for a, b in data.get(p, {}).items()
+            for c, d in b.items()
+        }
+        overview_cert = {
+            f'certificates_{a}': b
+            for a, b in data.get('certificates', {}).items()
+        }
+        return {
+            'overview': [{
+                'name': 'overview',
+                **overview,
+                **overview_cert,
+            }],
+            'version': [{
+                'name': 'version',
                 'version': version.get('Version'),
-                'version_codename': version.get('Codename'),
-                'version_start_date': on_dt_str(version.get('StartDate')),
+                'codename': version.get('Codename'),
+                'start_date': on_dt_str(version.get('StartDate')),
             }],
         }
-
-        http = data.get('http')
-        if http:
-            routers = http.get('routers')
-            services = http.get('services')
-            middlewares = http.get('middlewares')
-            if routers:
-                state['http_routers'] = [{
-                    'name': 'routers'
-                    **routers,
-                }]
-            if services:
-                state['http_services'] = [{
-                    'name': 'services'
-                    **services,
-                }]
-            if middlewares:
-                state['http_middlewares'] = [{
-                    'name': 'middlewares'
-                    **middlewares,
-                }]
-
-        tcp = data.get('tcp')
-        if tcp:
-            routers = tcp.get('routers')
-            services = tcp.get('services')
-            middlewares = tcp.get('middlewares')
-            if routers:
-                state['tcp_routers'] = [{
-                    'name': 'routers'
-                    **routers,
-                }]
-            if services:
-                state['tcp_services'] = [{
-                    'name': 'services'
-                    **services,
-                }]
-            if middlewares:
-                state['tcp_middlewares'] = [{
-                    'name': 'middlewares'
-                    **middlewares,
-                }]
-
-        udp = data.get('udp')
-        if udp:
-            routers = udp.get('routers')
-            services = udp.get('services')
-            middlewares = udp.get('middlewares')  # optional
-            if routers:
-                state['udp_routers'] = [{
-                    'name': 'routers'
-                    **routers,
-                }]
-            if services:
-                state['udp_services'] = [{
-                    'name': 'services'
-                    **services,
-                }]
-            if middlewares:
-                state['udp_middlewares'] = [{
-                    'name': 'middlewares'
-                    **middlewares,
-                }]
-
-        return state
