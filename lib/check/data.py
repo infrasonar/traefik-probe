@@ -30,10 +30,9 @@ class CheckData(Check):
                 'using': r.get('using'),  # liststr
             }
             for sname, s in data['services'].items():
-                if s.get('usedBy') == rname:
+                if rname in s.get('usedBy', []):
                     item['service'] = sname
                     break
-
             routers.append(item)
 
         middlewares = [{
@@ -85,7 +84,7 @@ class CheckData(Check):
                 'using': r.get('using'),  # liststr
             }
             for sname, s in data['tcpServices'].items():
-                if s.get('usedBy') == rname:
+                if rname in s.get('usedBy', []):
                     item['service'] = sname
                     break
             tcp_routers.append(item)
@@ -95,7 +94,6 @@ class CheckData(Check):
             'status': m.get('status'),  # str
             'usedBy': m.get('usedBy'),  # liststr
         } for mname, m in data['tcpServices'].items()]
-
 
         tcp_server_status = [
             {
