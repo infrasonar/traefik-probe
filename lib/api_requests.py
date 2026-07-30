@@ -1,4 +1,5 @@
 import aiohttp
+from typing import Any
 from libprobe.asset import Asset
 from libprobe.exceptions import CheckException
 from .connector import get_connector
@@ -10,7 +11,7 @@ DEFAULT_PORT = 8080
 async def api_requests(
         asset: Asset,
         config: dict,
-        requests: tuple[str, ...]) -> dict:
+        requests: tuple[str, ...]) -> dict[str, Any]:
 
     address = config.get('address')
     if not address:
@@ -36,3 +37,5 @@ async def api_requests(
     except Exception as e:
         msg = str(e) or type(e).__name__
         raise CheckException(msg)
+
+    return results
