@@ -1,9 +1,7 @@
-import aiohttp
 import base64
 from libprobe.asset import Asset
 from libprobe.check import Check
-from libprobe.exceptions import CheckException
-from ..connector import get_connector
+from ..api_requests import api_requests
 
 
 DEFAULT_PORT = 8080
@@ -15,28 +13,8 @@ class CheckData(Check):
 
     @staticmethod
     async def run(asset: Asset, local_config: dict, config: dict) -> dict:
-        address = config.get('address')
-        if not address:
-            address = asset.name
-        port = config.get('port', DEFAULT_PORT)
-        base_url = f'http://{address}:{port}'
-        ssl = False
-        protocol = config.get('protocol')
-        if protocol == 'HTTPS (Unverified)':
-            base_url = f'https://{address}:{port}'
-        elif protocol == 'HTTPS (Strict)':
-            base_url = f'https://{address}:{port}'
-            ssl = True
-
-        try:
-            async with aiohttp.ClientSession(connector=get_connector()) as se:
-                async with se.get(f'{base_url}/api/rawdata', ssl=ssl) as resp:
-                    resp.raise_for_status()
-                    data = await resp.json()
-        except Exception as e:
-            msg = str(e) or type(e).__name__
-            raise CheckException(msg)
-
+        resp = await api_requests(asset, config, ('/api/rawdata', ))
+        data = resp['/api/rawdata']
 
         routers = []
         for rname, r in data['routers'].items():
